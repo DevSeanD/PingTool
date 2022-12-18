@@ -1,7 +1,7 @@
 # PingTool
 PingTool helps detect bottlenecks in networks
 
-PingTool is a Linux based networking tool that uses IP addresses as input and then runs the ping command on each IP address in succession.
+PingTool is a Linux based networking tool that uses IP addresses as input, runs ping command on each IP address in succession and records the output to a results file.
 This can be helpful when dianosing a conplex network where multiple hops are needed. By providing PingTool with all the IP addresses a packet
 requires to reach its desitnation, greater visibility of network bottlenecks can be had.
 
