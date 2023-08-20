@@ -1,33 +1,33 @@
-import os, time, signal, subprocess, console_ctrl
+import os, time, signal, subprocess
 
 def gatherIPs():
     fin = False
-    IPs = []
-    timeToRun = input("How many minutes would you like each test to run? ")
+    ips = []
+    numOfPackets = input("How many ICMP packets would you like to send? ")
 
     while not fin:
         try:
-            timeToRun = float(timeToRun)
+            numOfPackets = int(numOfPackets)
         except:
             print("The entered value is invalid")
-            timeToRun = 0.0
-        while timeToRun <= 0.0:
-            timeToRun = input("How many minutes would you like each test to run? ")
+            numOfPackets = 0
+        while int(numOfPackets) <= 0:
+            numOfPackets = input("How many ICMP packets would you like to send? ")
             try:
-                timeToRun = float(timeToRun)
+                numOfPackets = int(numOfPackets)
             except:
                 print("The entered value is invalid")
-                timeToRun = 0.0
+                numOfPackets = 0.0
 
-        IP = input("Enter an IP to ping: ")
-        IPVerify = IP.split('.')
+        ip = input("Enter an IP to ping: ")
+        ipVerify = ip.split('.')
 
-        if len(IPVerify) != 4:
+        if len(ipVerify) != 4:
             print("This IP address is not valid")
         else:
             count = 0
             invalid = False
-            for num in IPVerify:
+            for num in ipVerify:
                 if int(num) > 255 or int(num) < 0:
                     invalid = True
                 else:
@@ -35,8 +35,8 @@ def gatherIPs():
             if invalid:
                 print("This IP address is not valid")
             if count == 4:
-               IPs.append(IP) 
-
+               ips.append(ip) 
+ 
         moreIPs = input("Enter another IP address? Y or N ")
 
         if moreIPs == 'n' or moreIPs == 'N':
@@ -51,7 +51,7 @@ def gatherIPs():
                 elif moreIPs == 'y' or moreIPs == 'Y':
                     pass 
  
-    return IPs,timeToRun
+    return ips,numOfPackets
 
 def formatResultsFile():
     count = 0
@@ -70,21 +70,16 @@ def formatResultsFile():
 
     print("\nResults can be viewed in the results.txt file")
   
-def testIPs(IPs,timeToRun):
+def testIPs(ips,numOfPackets):
     with open('results.txt','w') as logFile:
-        for IP in IPs:
-            print("Ping test on {} is in progress".format(IP))
-            process = subprocess.Popen("ping {}".format(IP),stdout=logFile,shell=True)
-            time.sleep(timeToRun * 60) # convert to seconds from minutes
-            process.send_signal(signal.SIGINT) # send CTRL + C (We need this for the ending statistics)
-            time.sleep(.5)
-            process.kill()
-            print("Ping test on {} is complete \n".format(IP))
-
+        for ip in ips:
+            print("Ping test on {} is in progress".format(ip))
+            process = subprocess.Popen("ping {} -c {} | while read pong; do echo $(date): $pong; done >> results.txt".format(ip,numOfPackets),shell=True)
+            process.wait()
  
 def main():
-    IPList,timeToRun = gatherIPs()
-    testIPs(IPList,timeToRun)
+    ipList,numOfPackets = gatherIPs()
+    testIPs(ipList,numOfPackets)
     formatResultsFile()
 
 if __name__ == "__main__":
